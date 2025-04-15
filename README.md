@@ -26,6 +26,7 @@ sudo ./display
 ## run automatic_start script
 - Set the system to run `display` on every boot.
 ```bash
+sudo chmod +x automatic_start.sh
 sudo ./automatic_start.sh
 ```
 - reboot your system
