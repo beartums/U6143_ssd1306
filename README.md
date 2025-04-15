@@ -8,6 +8,7 @@ Enable i2c
 
 ##  Clone U6143_ssd1306 library 
 ```bash
+cd
 git clone https://github.com/UCTRONICS/U6143_ssd1306.git
 ```
 ## Compile 
@@ -22,17 +23,10 @@ sudo make clean && sudo make
 sudo ./display
 ```
 
-## Add automatic start script
-- Open the rc.local file 
+## run automatic_start script
+- Set the system to run `display` on every boot.
 ```bash
-sudo nano /etc/rc.local
-```
-- Add command to the rc.local file
-```bash
-cd /home/pi/U6143_ssd1306/C
-sudo make clean 
-sudo make 
-sudo ./display &
+sudo ./automatic_start.sh
 ```
 - reboot your system
 
