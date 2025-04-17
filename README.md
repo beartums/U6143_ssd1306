@@ -23,7 +23,7 @@ sudo make clean && sudo make
 sudo ./display
 ```
 
-## run automatic_start script
+## run `setup_display_service.sh` script
 - Set the system to run `display` on every boot.
 ```bash
 chmod +x setup_display_service.sh
