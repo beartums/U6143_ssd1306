@@ -11,26 +11,12 @@ Enable i2c
 cd
 git clone https://github.com/UCTRONICS/U6143_ssd1306.git
 ```
-## Compile 
+## Run `setup_display_service.sh` script
 ```bash
-cd U6143_ssd1306/C
-```
-```bash
-sudo make clean && sudo make 
-```
-## Run 
-```
-sudo ./display
-```
-
-## run `setup_display_service.sh` script
-- Set the system to run `display` on every boot.
-```bash
+cd U6143_ssd1306
 chmod +x setup_display_service.sh
 sudo ./setup_display_service.sh
 ```
-- reboot your system
-
 ## For older 0.91 inch lcd without mcu 
 - For the older version lcd without mcu controller, you can use python demo
 - Install the dependent library files
