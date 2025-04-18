@@ -9,7 +9,7 @@ Enable i2c
 ##  Clone U6143_ssd1306 library 
 ```bash
 cd
-git clone https://github.com/Dion4cen/U6143_ssd1306.git
+git clone https://github.com/UCTRONICS/U6143_ssd1306.git
 ```
 ## Run `setup_display_service.sh` script
 ```bash
