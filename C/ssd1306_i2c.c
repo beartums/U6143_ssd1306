@@ -496,14 +496,6 @@ void LCD_DisplayHostname(void)
     }
 }
 
-// Struct to hold config
-struct DisplayConfig {
-    bool show_temperature;
-    bool show_cpu_memory;
-    bool show_sd_memory;
-    bool show_hostname;
-};
-
 // Function to load config from plain text file (display.cfg)
 bool load_display_config(const char* filename, struct DisplayConfig* config) {
     FILE* fh = fopen(filename, "r");
