@@ -18,7 +18,6 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdbool.h>
-#include <yaml.h>
 
 
 char IPSource[20]={0};
@@ -505,36 +504,21 @@ struct DisplayConfig {
     bool show_hostname;
 };
 
-// Function to load config from YAML
+// Function to load config from plain text file (display.cfg)
 bool load_display_config(const char* filename, struct DisplayConfig* config) {
     FILE* fh = fopen(filename, "r");
     if (!fh) return false;
-    yaml_parser_t parser;
-    yaml_token_t token;
-    yaml_parser_initialize(&parser);
-    yaml_parser_set_input_file(&parser, fh);
-    char key[64] = {0};
-    while (1) {
-        yaml_parser_scan(&parser, &token);
-        if (token.type == YAML_STREAM_END_TOKEN) break;
-        if (token.type == YAML_KEY_TOKEN) {
-            yaml_parser_scan(&parser, &token);
-            if (token.type == YAML_SCALAR_TOKEN) {
-                strncpy(key, (char*)token.data.scalar.value, sizeof(key)-1);
-            }
-        } else if (token.type == YAML_VALUE_TOKEN) {
-            yaml_parser_scan(&parser, &token);
-            if (token.type == YAML_SCALAR_TOKEN) {
-                bool val = (strcmp((char*)token.data.scalar.value, "true") == 0);
-                if (strcmp(key, "show_temperature") == 0) config->show_temperature = val;
-                else if (strcmp(key, "show_cpu_memory") == 0) config->show_cpu_memory = val;
-                else if (strcmp(key, "show_sd_memory") == 0) config->show_sd_memory = val;
-                else if (strcmp(key, "show_hostname") == 0) config->show_hostname = val;
-            }
+    char line[128];
+    while (fgets(line, sizeof(line), fh)) {
+        char key[64] = {0};
+        int val = 0;
+        if (sscanf(line, "%63[^=]=%d", key, &val) == 2) {
+            if (strcmp(key, "show_temperature") == 0) config->show_temperature = val;
+            else if (strcmp(key, "show_cpu_memory") == 0) config->show_cpu_memory = val;
+            else if (strcmp(key, "show_sd_memory") == 0) config->show_sd_memory = val;
+            else if (strcmp(key, "show_hostname") == 0) config->show_hostname = val;
         }
-        yaml_token_delete(&token);
     }
-    yaml_parser_delete(&parser);
     fclose(fh);
     return true;
 }
