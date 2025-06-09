@@ -57,4 +57,15 @@ void LCD_DisplaySdMemory(void);
 void FirstGetIpAddress(void);
 char* GetIpAddress(void);
 unsigned char Obaintemperature(void);
+void LCD_DisplayHostname(void);
+
+#include <stdbool.h>
+struct DisplayConfig {
+    bool show_temperature;
+    bool show_cpu_memory;
+    bool show_sd_memory;
+    bool show_hostname;
+};
+bool load_display_config(const char* filename, struct DisplayConfig* config);
+
 #endif				/* _SSD1306_I2C_H_ */
