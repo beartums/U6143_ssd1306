@@ -1,0 +1,6 @@
+# display_config.yaml
+# Set to true to enable each display option
+show_temperature: true
+show_cpu_memory: true
+show_sd_memory: true
+show_hostname: true

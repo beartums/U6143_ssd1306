@@ -16,6 +16,9 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <yaml.h>
 
 
 char IPSource[20]={0};
@@ -416,6 +419,9 @@ void LCD_Display(unsigned char symbol)
     case 2:
       LCD_DisplaySdMemory();
     break;
+    case 3:
+      LCD_DisplayHostname();
+    break;
     default:
     break;
   }
@@ -475,4 +481,60 @@ char* GetIpAddress(void)
       char* buffer="0.0.0.0";
       return buffer;
     }
+}
+
+// Display the hostname on the OLED
+void LCD_DisplayHostname(void)
+{
+    char hostname[HOST_NAME_MAX + 1] = {0};
+    if (gethostname(hostname, sizeof(hostname)) == 0) {
+        OLED_Clear();
+        OLED_ShowString(0, 0, (unsigned char*)"Hostname:", 16);
+        OLED_ShowString(0, 2, (unsigned char*)hostname, 16);
+    } else {
+        OLED_Clear();
+        OLED_ShowString(0, 0, (unsigned char*)"Host error", 16);
+    }
+}
+
+// Struct to hold config
+struct DisplayConfig {
+    bool show_temperature;
+    bool show_cpu_memory;
+    bool show_sd_memory;
+    bool show_hostname;
+};
+
+// Function to load config from YAML
+bool load_display_config(const char* filename, struct DisplayConfig* config) {
+    FILE* fh = fopen(filename, "r");
+    if (!fh) return false;
+    yaml_parser_t parser;
+    yaml_token_t token;
+    yaml_parser_initialize(&parser);
+    yaml_parser_set_input_file(&parser, fh);
+    char key[64] = {0};
+    while (1) {
+        yaml_parser_scan(&parser, &token);
+        if (token.type == YAML_STREAM_END_TOKEN) break;
+        if (token.type == YAML_KEY_TOKEN) {
+            yaml_parser_scan(&parser, &token);
+            if (token.type == YAML_SCALAR_TOKEN) {
+                strncpy(key, (char*)token.data.scalar.value, sizeof(key)-1);
+            }
+        } else if (token.type == YAML_VALUE_TOKEN) {
+            yaml_parser_scan(&parser, &token);
+            if (token.type == YAML_SCALAR_TOKEN) {
+                bool val = (strcmp((char*)token.data.scalar.value, "true") == 0);
+                if (strcmp(key, "show_temperature") == 0) config->show_temperature = val;
+                else if (strcmp(key, "show_cpu_memory") == 0) config->show_cpu_memory = val;
+                else if (strcmp(key, "show_sd_memory") == 0) config->show_sd_memory = val;
+                else if (strcmp(key, "show_hostname") == 0) config->show_hostname = val;
+            }
+        }
+        yaml_token_delete(&token);
+    }
+    yaml_parser_delete(&parser);
+    fclose(fh);
+    return true;
 }
