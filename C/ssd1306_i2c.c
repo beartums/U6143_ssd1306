@@ -18,7 +18,6 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdbool.h>
-#include <yaml.h>
 
 
 char IPSource[20]={0};
