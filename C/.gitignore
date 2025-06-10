@@ -1,0 +1,30 @@
+# Object files
+*.o
+display
+
+# Compiled binary files
+*.out
+*.elf
+*.bin
+*.hex
+
+# Dependency files
+*.d
+
+# Build directories
+/build/
+/bin/
+/obj/
+
+# Editor/OS files
+*~
+*.swp
+.DS_Store
+
+# CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# Logs
+*.log

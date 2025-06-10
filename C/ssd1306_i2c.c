@@ -486,13 +486,13 @@ char* GetIpAddress(void)
 void LCD_DisplayHostname(void)
 {
     char hostname[HOST_NAME_MAX + 1] = {0};
+    OLED_ClearLint(2,4);
+    OLED_DrawPartBMP(0,2,128,4,BMP,4); // Use symbol 4 for hostname background, adjust if needed
     if (gethostname(hostname, sizeof(hostname)) == 0) {
-        OLED_Clear();
-        OLED_ShowString(0, 0, (unsigned char*)"Hostname:", 16);
-        OLED_ShowString(0, 2, (unsigned char*)hostname, 16);
+        OLED_ShowString(0, 3, (unsigned char*)"Host:", 8);
+        OLED_ShowString(40, 3, (unsigned char*)hostname, 8);
     } else {
-        OLED_Clear();
-        OLED_ShowString(0, 0, (unsigned char*)"Host error", 16);
+        OLED_ShowString(0, 3, (unsigned char*)"Host error", 8);
     }
 }
 
