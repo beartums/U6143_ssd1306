@@ -352,6 +352,28 @@ void LCD_DisPlayCpuMemory(void)
   }
 }
 
+// Display the hostname on the OLED
+void LCD_DisplayHostname(void)
+{
+    char hostname[HOST_NAME_MAX + 1] = {0};
+    char line[128] = {0};
+    OLED_ClearLint(2,4);
+    OLED_DrawPartBMP(0,2,128,4,BMP,4); // Use symbol 4 for hostname background, adjust if needed
+    if (gethostname(hostname, sizeof(hostname)) == 0) {
+        int name_len = strlen(hostname);
+        int label_len = 5; // "Host:"
+        int gap = 2; // number of spaces between label and hostname
+        char label[] = "Host:";
+        snprintf(line, sizeof(line), "%s%*s%s", label, gap, "", hostname);
+        // Calculate the pixel width of the string (8px per char for font size 8)
+        int total_width = strlen(line) * 8;
+        int start_x = 128 - total_width;
+        if (start_x < 0) start_x = 0;
+        OLED_ShowString(start_x, 3, (unsigned char*)line, 8);
+    } else {
+        OLED_ShowString(0, 3, (unsigned char*)"Host error", 8);
+    }
+}
 
 /*
 *  LCD displays SD card memory information
@@ -482,27 +504,6 @@ char* GetIpAddress(void)
     }
 }
 
-// Display the hostname on the OLED
-void LCD_DisplayHostname(void)
-{
-    char hostname[HOST_NAME_MAX + 1] = {0};
-    OLED_ClearLint(2,4);
-    OLED_DrawPartBMP(0,2,128,4,BMP,4); // Use symbol 4 for hostname background, adjust if needed
-    if (gethostname(hostname, sizeof(hostname)) == 0) {
-        // Calculate the width of the hostname in pixels (6px per char for size 8 font)
-        int name_len = strlen(hostname);
-        int name_width = name_len * 6;
-        int label_width = 6 * 5; // "Host:" is 5 chars
-        int gap = 12; // extra space between label and name
-        int total_width = label_width + gap + name_width;
-        int start_x = 128 - total_width;
-        if (start_x < 0) start_x = 0;
-        OLED_ShowString(start_x, 3, (unsigned char*)"Host:", 8);
-        OLED_ShowString(start_x + label_width + gap, 3, (unsigned char*)hostname, 8);
-    } else {
-        OLED_ShowString(0, 3, (unsigned char*)"Host error", 8);
-    }
-}
 
 // Function to load config from plain text file (display.cfg)
 bool load_display_config(const char* filename, struct DisplayConfig* config) {
