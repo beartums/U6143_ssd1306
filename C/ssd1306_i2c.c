@@ -489,8 +489,16 @@ void LCD_DisplayHostname(void)
     OLED_ClearLint(2,4);
     OLED_DrawPartBMP(0,2,128,4,BMP,4); // Use symbol 4 for hostname background, adjust if needed
     if (gethostname(hostname, sizeof(hostname)) == 0) {
-        OLED_ShowString(0, 3, (unsigned char*)"Host:", 8);
-        OLED_ShowString(40, 3, (unsigned char*)hostname, 8);
+        // Calculate the width of the hostname in pixels (6px per char for size 8 font)
+        int name_len = strlen(hostname);
+        int name_width = name_len * 6;
+        int label_width = 6 * 5; // "Host:" is 5 chars
+        int gap = 12; // extra space between label and name
+        int total_width = label_width + gap + name_width;
+        int start_x = 128 - total_width;
+        if (start_x < 0) start_x = 0;
+        OLED_ShowString(start_x, 3, (unsigned char*)"Host:", 8);
+        OLED_ShowString(start_x + label_width + gap, 3, (unsigned char*)hostname, 8);
     } else {
         OLED_ShowString(0, 3, (unsigned char*)"Host error", 8);
     }
