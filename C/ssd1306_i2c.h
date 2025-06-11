@@ -67,6 +67,6 @@ struct DisplayConfig {
     bool show_hostname;
 };
 
-bool load_display_config(const char* filename, struct DisplayConfig* config);
+bool load_display_config(const char* filename, struct DisplayConfig* config, bool debug);
 
 #endif				/* _SSD1306_I2C_H_ */

@@ -18,7 +18,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdbool.h>
-
+#include <stdlib.h>
 
 char IPSource[20]={0};
 int i2cd;
@@ -506,19 +506,56 @@ char* GetIpAddress(void)
 
 
 // Function to load config from plain text file (display.cfg)
-bool load_display_config(const char* filename, struct DisplayConfig* config) {
+// If debug is true, print key/value pairs as they are parsed
+bool load_display_config(const char* filename, struct DisplayConfig* config, bool debug) {
     FILE* fh = fopen(filename, "r");
     if (!fh) return false;
     char line[128];
     while (fgets(line, sizeof(line), fh)) {
-        char key[64] = {0};
-        int val = 0;
-        if (sscanf(line, "%63[^=]=%d", key, &val) == 2) {
-            if (strcmp(key, "show_temperature") == 0) config->show_temperature = val;
-            else if (strcmp(key, "show_cpu_memory") == 0) config->show_cpu_memory = val;
-            else if (strcmp(key, "show_sd_memory") == 0) config->show_sd_memory = val;
-            else if (strcmp(key, "show_hostname") == 0) config->show_hostname = val;
+        char* p = line;
+        // Skip leading whitespace
+        while (*p == ' ' || *p == '\t') p++;
+        // Skip comments and blank lines
+        if (*p == '#' || *p == '\0' || *p == '\n') continue;
+        // Find delimiter ('=' or ':')
+        char* delim = strchr(p, '=');
+        if (!delim) delim = strchr(p, ':');
+        if (!delim) continue;
+        // Split key and value
+        *delim = '\0';
+        char* key = p;
+        char* value = delim + 1;
+        // Trim trailing whitespace from key
+        char* end = key + strlen(key) - 1;
+        while (end > key && (*end == ' ' || *end == '\t')) *end-- = '\0';
+        // Trim leading whitespace from value
+        while (*value == ' ' || *value == '\t') value++;
+        // Trim trailing newline and whitespace from value
+        end = value + strlen(value) - 1;
+        while (end > value && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')) *end-- = '\0';
+        // Print key and value for debugging if debug is enabled
+        if (debug) {
+            printf("Config: key='%s', value='%s'\n", key, value);
         }
+        // Handle booleans (true/false), integers, and strings
+        if (strcmp(key, "show_temperature") == 0) {
+            if (strcasecmp(value, "true") == 0) config->show_temperature = 1;
+            else if (strcasecmp(value, "false") == 0) config->show_temperature = 0;
+            else config->show_temperature = atoi(value);
+        } else if (strcmp(key, "show_cpu_memory") == 0) {
+            if (strcasecmp(value, "true") == 0) config->show_cpu_memory = 1;
+            else if (strcasecmp(value, "false") == 0) config->show_cpu_memory = 0;
+            else config->show_cpu_memory = atoi(value);
+        } else if (strcmp(key, "show_sd_memory") == 0) {
+            if (strcasecmp(value, "true") == 0) config->show_sd_memory = 1;
+            else if (strcasecmp(value, "false") == 0) config->show_sd_memory = 0;
+            else config->show_sd_memory = atoi(value);
+        } else if (strcmp(key, "show_hostname") == 0) {
+            if (strcasecmp(value, "true") == 0) config->show_hostname = 1;
+            else if (strcasecmp(value, "false") == 0) config->show_hostname = 0;
+            else config->show_hostname = atoi(value);
+        }
+        // Add more string or boolean fields here as needed
     }
     fclose(fh);
     return true;

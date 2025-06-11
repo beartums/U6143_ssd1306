@@ -8,12 +8,18 @@ Demo for ssd1306 i2c driver for  Raspberry Pi
 #include <stdbool.h>
 #include <string.h>
 
-int main(void) 
+int main(int argc, char* argv[])
 {
+    bool debug = false;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--debug") == 0) {
+            debug = true;
+        }
+    }
     struct DisplayConfig config = {1,1,1,1};
     int display_order[4];
     int display_count = 0;
-    if (!load_display_config("display_config.yaml", &config)) {
+    if (!load_display_config("display.cfg", &config, debug)) {
         printf("Warning: Could not load display_config.yaml, using defaults.\n");
     }
     if (config.show_temperature) display_order[display_count++] = 0;
