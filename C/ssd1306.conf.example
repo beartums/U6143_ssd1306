@@ -2,21 +2,47 @@
 # Copy to ./ssd1306.conf or /etc/ssd1306.conf
 
 # Which screens to cycle through (1=enabled, 0=disabled)
+# Original three screens (on by default)
 show_temperature=1
 show_memory=1
 show_disk=1
 
+# Additional screens (off by default — enable as desired)
+show_clock=0       # current time and date
+show_uptime=0      # system uptime and process count
+show_cpu_freq=0    # CPU clock speed and throttle status (UV/FC/TH/TL or OK)
+show_gpu_temp=0    # CPU and GPU temperatures side-by-side (requires vcgencmd)
+show_network=0     # network RX/TX throughput for active interfaces
+show_wifi=0        # Wi-Fi signal strength and link quality (wlan0)
+show_docker=0      # count of running and stopped Docker containers
+show_hostname=0    # system hostname as a standalone screen
+show_ip=0          # IP addresses of configured network interfaces
+
 # Temperature unit: celsius or fahrenheit
 temp_unit=fahrenheit
 
-# Network interface for IP display: eth0 or wlan0
-ip_source=eth0
+# How to display CPU load on the temperature screen:
+#   percent - multiply by 100 and show with % (default, e.g. "15%")
+#   cores   - raw load average as a decimal (e.g. "0.15")
+load_display=percent
 
-# What to show on the top line of the temperature screen:
-#   ip       - IP address of ip_source interface
+# Comma-delimited list of network interfaces to show (in order).
+# Used by the IP screen and Network screen. First interface is also
+# used for the top-line IP display.
+network_interfaces=eth0,wlan0
+
+# Seconds to show each screen before advancing to the next
+screen_time=3
+
+# What to show on the top line of every screen:
+#   ip       - IP address of the first network_interfaces entry (default)
 #   hostname - system hostname
 #   custom   - the custom_text value below
+#   none     - disable the top line entirely
 top_line=ip
 
 # Text shown when top_line=custom
 custom_text=UCTRONICS
+
+# I2C bus device (default: /dev/i2c-1)
+#i2c_bus=/dev/i2c-1
