@@ -1,25 +1,28 @@
 # U6143 SSD1306 OLED Display — C Driver
 
-## Enable I2C
+## Install (recommended)
+
+Enable I²C first:
 
 ```bash
-sudo raspi-config
+sudo raspi-config   # Interface Options → I2C → Enable, then reboot
 ```
 
-Choose **Interface Options → I2C → Enable**.
+Then install with one command:
 
-## Build
+```bash
+curl -fsSL https://raw.githubusercontent.com/egrif/U6143_ssd1306/master/install.sh | sudo bash
+```
+
+This compiles the driver, installs the binary to `/usr/local/bin/ssd1306-display`, writes a default config to `/etc/ssd1306.conf`, and starts a systemd service that runs on every boot. Re-running the command updates to the latest version without touching your config.
+
+## Manual build
 
 ```bash
 git clone https://github.com/egrif/U6143_ssd1306.git
 cd U6143_ssd1306/C
 make
-```
-
-## Run
-
-```bash
-./display
+sudo ./display
 ```
 
 ## Terminal simulator
