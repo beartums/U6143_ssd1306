@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/sysinfo.h>
+#include "config.h"
 #include <sys/vfs.h>
 #include "ssd1306_i2c.h"
 #include "bmp.h"
@@ -255,16 +256,23 @@ void LCD_DisplayTemperature(void)
   pclose(fp);
   buffer[3]='\0';        
   
-  OLED_Clear();                                        //Remove the interface
-  OLED_DrawBMP(0,0,128,4,BMP,TEMPERATURE_TYPE);
-  if (IP_SWITCH == IP_DISPLAY_OPEN)
+  int bmp_index = g_config.temp_fahrenheit ? 1 : 0;
+  OLED_Clear();
+  OLED_DrawBMP(0,0,128,4,BMP,bmp_index);
+  if (g_config.top_line == TOP_LINE_HOSTNAME)
   {
-    strcpy(IPSource,GetIpAddress());   //Get the IP address of the device's wireless network card
-    OLED_ShowString(0,0,IPSource,8);          //Send the IP address to the lower machine
+    char hostname[64] = {0};
+    gethostname(hostname, sizeof(hostname) - 1);
+    OLED_ShowString(0,0,(unsigned char*)hostname,8);
+  }
+  else if (g_config.top_line == TOP_LINE_IP)
+  {
+    strcpy(IPSource,GetIpAddress());
+    OLED_ShowString(0,0,IPSource,8);
   }
   else
   {
-    OLED_ShowString(0,0,CUSTOM_DISPLAY,8);          //Send the IP address to the lower machine
+    OLED_ShowString(0,0,(unsigned char*)g_config.custom_text,8);
   }
 
   if(temp>=100)                                                  
@@ -294,7 +302,7 @@ unsigned char Obaintemperature(void)
     fgets(buff,sizeof(buff),fd);
     sscanf(buff, "%d", &temp);
     fclose(fd);
-    return TEMPERATURE_TYPE == FAHRENHEIT ? temp/1000*1.8+32 : temp/1000;
+    return g_config.temp_fahrenheit ? temp/1000*1.8+32 : temp/1000;
 
 }
 
@@ -431,48 +439,15 @@ char* GetIpAddress(void)
 {
     int fd;
     struct ifreq ifr;
-    int symbol=0;
-    if (IPADDRESS_TYPE == ETH0_ADDRESS)
-    {
-      fd = socket(AF_INET, SOCK_DGRAM, 0);
-      /* I want to get an IPv4 IP address */
-      ifr.ifr_addr.sa_family = AF_INET;
-      /* I want IP address attached to "eth0" */
-      strncpy(ifr.ifr_name, "eth0", IFNAMSIZ-1);
-      symbol=ioctl(fd, SIOCGIFADDR, &ifr);
-      close(fd);
-      if(symbol==0)
-      {
+    const char *iface = (g_config.ip_source == 1) ? "wlan0" : "eth0";
+
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    ifr.ifr_addr.sa_family = AF_INET;
+    strncpy(ifr.ifr_name, iface, IFNAMSIZ-1);
+    if (ioctl(fd, SIOCGIFADDR, &ifr) == 0) {
+        close(fd);
         return inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
-      }
-      else
-      {
-        char* buffer="0.0.0.0";
-        return buffer;
-      }
     }
-    else if (IPADDRESS_TYPE == WLAN0_ADDRESS)
-    {
-        fd = socket(AF_INET, SOCK_DGRAM, 0);
-        /* I want to get an IPv4 IP address */
-        ifr.ifr_addr.sa_family = AF_INET;
-        /* I want IP address attached to "wlan0" */
-        strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ-1);
-        symbol=ioctl(fd, SIOCGIFADDR, &ifr);
-        close(fd);    
-        if(symbol==0)
-        {
-          return inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);   
-        }
-        else
-        {
-          char* buffer="0.0.0.0";
-          return buffer;
-        }
-    }
-    else
-    {
-      char* buffer="0.0.0.0";
-      return buffer;
-    }
+    close(fd);
+    return "0.0.0.0";
 }
