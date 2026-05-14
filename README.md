@@ -19,7 +19,7 @@ Choose **Interface Options → I2C → Enable**, then reboot.
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/egrif/U6143_ssd1306/master/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/beartums/U6143_ssd1306/master/install.sh | sudo bash
 ```
 
 The installer will:
